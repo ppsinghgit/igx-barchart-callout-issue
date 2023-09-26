@@ -1,0 +1,228 @@
+<div class="modal-body">
+  <div class="container-fluid">
+    <div class="row float-end">
+      <div class="col">
+        <button type="button" class="btn-close" ngbAutofocus="false"></button>
+      </div>
+    </div>
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          type="button"
+          (click)="selectTabOnClick(1)"
+          [ngClass]="selectedTabInCharts == 1 ? 'active' : ''"
+        >
+          BY REBATE CATEGORY
+        </button>
+      </li>
+
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          (click)="selectTabOnClick(2)"
+          [ngClass]="selectedTabInCharts == 2 ? 'active' : ''"
+          type="button"
+        >
+          STATE
+        </button>
+      </li>
+
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          type="button"
+          (click)="selectTabOnClick(3)"
+          [ngClass]="selectedTabInCharts == 3 ? 'active' : ''"
+        >
+          PROGRESS
+        </button>
+      </li>
+    </ul>
+    <div class="tab-content mt-4" id="myTabContent" *ngIf="totalEnrolledStores">
+      <div
+        class="tab-pane fade"
+        [ngClass]="selectedTabInCharts == 1 ? 'show active' : ''"
+      >
+        <div class="col-12">
+          <span class="d-block fw-bold light-black fs-3 pb-4 text-uppercase"
+            >BY REBATE CATEGORY</span
+          >
+        </div>
+        <div class="row" [ngStyle]="chartsHeightByScreen()">
+          <div class="col-12 card">
+            <div class="col-12" style="height: 100% !important;">
+              <div
+                style="float: right;margin-top: -20px;margin-right: 26px;"
+                class="legend"
+              >
+                <igx-legend #rebateLegent orientation="horizontal"></igx-legend>
+              </div>
+
+              <igx-data-chart
+                height="90%"
+                width="100%"
+                [legend]="rebateLegent"
+                isHorizontalZoomEnabled="false"
+                isVerticalZoomEnabled="false"
+                [dataSource]="dashboardCollection.BarChart"
+                [brushes]="barChartBrushes"
+              >
+                <igx-category-x-axis
+                  #xAxis
+                  label="RebateCategory"
+                  overlap="1"
+                  gap="0.1"
+                  useClusteringMode="true"
+                ></igx-category-x-axis>
+
+                <igx-numeric-y-axis
+                  #yAxis1
+                  abbreviateLargeNumbers="true"
+                  title="Total Stores"
+                  titleLeftMargin="5"
+                  titleRightMargin="0"
+                  minimumValue="0"
+                >
+                </igx-numeric-y-axis>
+
+                <igx-column-series
+                  #EnrolledStoresSeries
+                  [xAxis]="xAxis"
+                  [yAxis]="yAxis1"
+                  valueMemberPath="RebateCategoryCount"
+                  title="Enrolled Stores"
+                  markerType="Hidden"
+                  brush="#DFEAFE"
+                  outline="#DFEAFE"
+                  [tooltipTemplate]="valueTooltip"
+                >
+                </igx-column-series>
+
+                <igx-column-series
+                  #OnTrackStoreseries
+                  [xAxis]="xAxis"
+                  [yAxis]="yAxis1"
+                  valueMemberPath="BarChartAdditionalData.NoOfStoresOnTrack"
+                  title="On Track to Compliance"
+                  markerType="Hidden"
+                  brush="#00b050"
+                  outline="#00b050"
+                  [tooltipTemplate]="valueTooltip"
+                >
+                </igx-column-series>
+
+                <igx-callout-layer
+                  isAutoCalloutBehaviorEnabled="false"
+                  [targetSeries]="EnrolledStoresSeries"
+                  useValueForAutoCalloutLabels="false"
+                  calloutLeaderBrush="Transparent"
+                  calloutTextColor="Black"
+                  calloutBackground="Transparent"
+                  xMemberPath="BarChartAdditionalData.EnrolledStoresX"
+                  yMemberPath="BarChartAdditionalData.EnrolledStoresY"
+                  labelMemberPath="BarChartAdditionalData.FormattedEnrolledStores"
+                  isCalloutOffsettingEnabled="false"
+                >
+                </igx-callout-layer>
+
+                <igx-callout-layer
+                  isAutoCalloutBehaviorEnabled="false"
+                  [targetSeries]="OnTrackStoreseries"
+                  useValueForAutoCalloutLabels="false"
+                  calloutLeaderBrush="Transparent"
+                  calloutBackground="Transparent"
+                  calloutTextColor="Black"
+                  xMemberPath="BarChartAdditionalData.OnTrackStoresX"
+                  yMemberPath="BarChartAdditionalData.OnTrackStoresY"
+                  labelMemberPath="BarChartAdditionalData.FormattedOnTrackStores"
+                  isCalloutOffsettingEnabled="false"
+                >
+                </igx-callout-layer>
+              </igx-data-chart>
+
+              <ng-template let-series="series" let-item="item" #valueTooltip>
+                <div style="width: 100%; height: 80px; padding:7px;">
+                  <div style="font-weight: 600; padding-bottom:7px;">
+                    {{ item.BarChartAdditionalData.RebateCategory }}
+                  </div>
+                  <div
+                    style="width: 100%;font-size:13px; min-width: 200px; max-width:250px;"
+                  >
+                    <div style="width: 100%;">
+                      <table width="100%">
+                        <tr>
+                          <td>Enrolled Stores</td>
+                          <td
+                            class="font-weight-bold"
+                            style="text-align: right;"
+                          >
+                            {{
+                              item.BarChartAdditionalData.RebateCategoryCount
+                            }}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>On Track to Compliance</td>
+                          <td
+                            class="font-weight-bold"
+                            style="text-align: right;"
+                          >
+                            {{ item.BarChartAdditionalData.NoOfStoresOnTrack }}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>On Track %</td>
+                          <td
+                            class="font-weight-bold"
+                            style="text-align: right;"
+                          >
+                            {{ item.BarChartAdditionalData.OnTrackPercentage }}
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+              <div class="col-12 card">
+                <div class="col-12 mt-2n">
+                  <ng-container *ngIf="dashboardCollection.BarChart">
+                    <span class="align-bottom" style="vertical-align: bottom;">
+                      <small class="pl-0">
+                        Total Enrolled Stores:
+                        <b
+                          ><span class="number-in-sections">
+                            {{ totalEnrolledStoreBarChart }}</span
+                          ></b
+                        >
+                      </small>
+                    </span>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="tab-pane fade"
+        [ngClass]="selectedTabInCharts == 2 ? 'show active' : ''"
+      >
+        <div class="row">
+          <h2>dummy 2</h2>
+        </div>
+      </div>
+
+      <div
+        class="tab-pane fade"
+        [ngClass]="selectedTabInCharts == 3 ? 'show active' : ''"
+      >
+        <div class="row">
+          <h2>Dummy 3</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
